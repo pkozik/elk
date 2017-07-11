@@ -1,0 +1,54 @@
+---
+
+
+- name: cleanup old containers
+  docker_container:
+    name: "{{container_name}}"
+    state: absent
+
+    
+    
+- name: Initialize data directory
+  file:
+    path: "{{item}}"
+    state: directory
+    mode: 0777
+  with_items:
+    - "{{data_vol}}/data"
+    - "{{data_vol}}/log"
+
+
+    
+- name: "Start {{container_name}} container"
+  docker_container:
+    name: "{{container_name}}"
+    image: csf/elk_e:5.4
+    state: started
+    pull: false
+    volumes:
+    - "{{data_vol}}:/data"
+    ports:
+    - "9500:9500"
+    - "9200:9200"
+    capabilities:
+    - IPC_LOCK
+    memory: 2g
+    memory_swap: 2g
+    memory_swappiness: 0
+    ulimits:
+     - nofile:65536:65536
+     - memlock:-1:-1
+     - nproc:2048:2048
+    env:
+      NODE_NAME: "{{inventory_hostname}}"
+      CLUSTER_NAME: mantl
+      NODE_MASTER: "false"
+      NODE_DATA: "false"
+      NETWORK_HOST: "_site_"
+      HTTP_ENABLE: "true"
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+      DISCOVERY_SERVICE: "{{discovery_hosts}}"
+      xpack.security.enabled: "false"
+      network.publish_host: "{{inventory_hostname}}"
+      transport.tcp.port: "9500"
+

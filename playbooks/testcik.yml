@@ -1,0 +1,30 @@
+- name: prepare hosts for Elasticsearch containers
+  hosts: localhost
+  vars:
+     master_nodes: "{{groups['role=worker'][0:3]}}"
+     data_nodes: "{{groups['role=worker'][3:]}}"
+     client_nodes: "{{groups['role=worker'][0:2]}}"
+     
+     discovery_hostas: "{{master_nodes | join(',')}}"
+     
+
+- name: mstersi  
+  hosts: "{{groups['role=worker'][0:3]}}"
+  vars:
+    discovery_hostas: {{ play_hosts }}
+  tasks:
+    - name: list discovery
+      debug:
+        msg: "discovery: {{discovery_hostas}}"
+      run_once: true
+  
+    - name: install
+      debug:
+        msg: "master: installing on: {{inventory_host}}"
+  
+- name: data  
+  hosts: "{{groups['role=worker'][3:]}}"
+  tasks:
+    - name: install
+      debug:
+        msg: "data: installing on: {{inventory_host}}"

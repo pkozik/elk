@@ -1,0 +1,98 @@
+# make sure our docker image will not be removed by docker-gc
+- name: Retrieve the docker images-exclude file
+  hosts: role=control[0]
+  become: true
+  vars:
+    elk_container: "csf/elk_e:5.4"
+  tasks:
+    - name: get id
+      shell: "docker images -q {{elk_container}}"
+      register: docker_images_output
+
+    - set_fact:
+        elk_container_id: "{{docker_images_output.stdout}}"
+        
+    - name: append id to excluded ids
+      when: elk_container_id is defined 
+      lineinfile:
+        dest: /etc/docker/images-exclude
+        line: "{{elk_container_id}}"
+        state: present
+
+    - name: fetch docker images ids to localhost
+      become: true
+      fetch:
+        src: /etc/docker/images-exclude
+        dest: /tmp/images-exclude
+        flat: yes
+
+ 
+ # disable old ELK consul checks
+- name: "disable marathon.health consul checks"
+  hosts: role=control
+  become: true
+  vars:
+     plat_folder: "{{lookup('env', 'PLAT_BASE')}}"
+
+  tasks:
+    - name: Consul checks install
+      include: "{{plat_folder}}/mantl/playbooks/install-consul-checks.yml"
+      static: no
+      vars:
+        config:
+          - {src: "../files/marathon_consul.json", dest: "marathon.json"}
+
+
+- name: prepare hosts for Elasticsearch containers
+  hosts: role=worker
+  become: true
+  vars:
+    data_path: /var/lib/mesos/elk
+    es_data: "{{data_path}}/data"
+    es_log: "{{data_path}}/log"
+    ia_ip: "{{lookup('env', 'LOCALHOST_IP')}}"
+    software_repository: "{{lookup('env', 'SOFTWARE_REPOSITORY')}}"
+    remove_containers: true
+ 
+  tasks:
+    - name: "Install ansible modules: docker-py"
+      pip:
+        state: present
+        name: "docker-py"
+        version: "1.10.6"
+        extra_args: "--trusted-host {{ia_ip}} --no-index -f {{software_repository}}/external_images/py"
+  
+  
+    - name: "System configuration: vm.swappiness" 
+      sysctl:
+        name: vm.swappiness
+        value: 1
+        state: present
+        sysctl_set: yes
+        
+        
+    - name: "System configuration: vm.max_map_count" 
+      sysctl:
+        name: vm.max_map_count
+        value: 262144
+        state: present
+        sysctl_set: yes
+        
+ 
+    - name: "Copy the docker images-exclude file"
+      copy:
+        dest: "/etc/docker/images-exclude"
+        src: "/tmp/images-exclude"
+ 
+  
+    - name: cleanup old containers
+      when: remove_containers == true
+      docker_container:
+        name: "{{item}}"
+        state: absent
+      with_items:
+        - es_master
+        - es_data
+        - es_client
+
+ 

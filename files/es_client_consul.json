@@ -1,0 +1,16 @@
+{
+    "service": {
+        "name": "elasticsearch-client-mantl",
+        "tags": ["elasticsearch", "client", "logs"],
+        "port": 9200,
+        "checks": [
+            {
+                "name": "elasticsearch-client-mantl_health",
+                "http": "http://localhost:9200/_cluster/health",
+                "method": "GET",
+                "interval": "30s",
+                "timeout": "10s"
+            }
+        ]
+    }
+}

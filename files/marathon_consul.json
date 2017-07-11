@@ -1,0 +1,31 @@
+{
+  "services": [
+    {
+        "name": "marathon",
+        "tags": [ "marathon" ],
+        "port": 18080,
+        "check": {
+            "script": "curl --silent --show-error --fail --dump-header /dev/stderr --retry 2 --connect-timeout 5 --max-time 5 http://127.0.0.1:18080/ping",
+            "interval": "10s",
+            "timeout": "2s"
+        }
+    },
+    {
+        "id": "marathon.health",
+        "name": "marathon.health",
+        "tags": [ "marathon" ]
+    }
+   ],
+
+   "checks": [
+            {
+                "id": "marathon.health.overal",
+                "name": "Marathon applications: overal health",
+                "notes": "GET http://marathon.service.consul:18080/v2/apps",
+                "script": "/usr/local/bin/check-marathon-services overal",
+                "interval": "30s",
+                "timeout": "10s",
+                "service_id": "marathon.health"
+            }
+        ]
+}

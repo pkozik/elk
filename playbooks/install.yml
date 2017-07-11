@@ -1,0 +1,61 @@
+- name: Install Elastic nodes
+  become: true
+  hosts: role=worker
+  vars:
+    master_nodes: "{{groups['role=worker'][0:3]}}"
+    data_nodes: "{{groups['role=worker'][3:]}}"
+    client_nodes: "{{groups['role=worker'][0:2]}}"
+    data_path: /var/lib/mesos/elk
+    discovery_hosts: "{{master_nodes | join(',')}}"
+    transport_port: "9300"
+    plat_folder: "{{lookup('env', 'PLAT_BASE')}}"
+
+
+  tasks:
+    # Start MASTER
+    - name: Start master node container
+      when: inventory_hostname in master_nodes
+      include: start_master.yml
+      static: no
+      vars:
+        container_name: "es_master"
+        data_vol: "{{data_path}}/{{container_name}}"
+        is_master: "true"
+        is_data: "true"
+      tags: ["master"]
+        
+        
+    # Start DATA only
+    - name: Start data node container
+      when: inventory_hostname in data_nodes
+      include: start_master.yml
+      static: no
+      vars:
+        container_name: "es_data"
+        data_vol: "{{data_path}}/{{container_name}}"
+        is_master: "false"
+        is_data: "true"
+      tags: ["data"]
+     
+
+    # Start CLIENT
+    - name: Start client node container
+      when: inventory_hostname in client_nodes
+      include: start_client.yml
+      static: no
+      vars:
+        container_name: "es_client"
+        data_vol: "{{data_path}}/{{container_name}}"
+        transport_port: "9500"
+        discovery_hosts: "{{master_nodes|map('regex_replace', '^(.*)$', '\\1:9300' ) | join(',')}}"
+      tags: ["client"]
+        
+        
+    - name: Consul checks install
+      include: "{{plat_folder}}/mantl/playbooks/install-consul-checks.yml"
+      when: inventory_hostname in client_nodes
+      static: no
+      vars:
+        config:
+          - {src: "../files/es_client_consul.json", dest: "es_client-consul.json"}
+      tags: ["client"]
