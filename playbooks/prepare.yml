@@ -5,18 +5,30 @@
   vars:
     elk_container: "csf/elk_e:5.4"
   tasks:
-    - name: get id
-      shell: "docker images -q {{elk_container}}"
-      register: docker_images_output
-
+    - name: get container ids
+      shell: "docker images -q {{item}} >> /tmp/images-ids"
+      with_items: 
+        - "csf/elk_e:5.4"
+        - "csf/elk_k:5.4"
+ 
+    - name: add container ids to facts
+      shell: "cat /tmp/images-ids"
+      register: images_ids_output
+      
+    - name: remove tmp file
+      file:  
+        path: /tmp/images-ids
+        state: absent
+      
     - set_fact:
-        elk_container_id: "{{docker_images_output.stdout}}"
+        elk_container_ids: "{{images_ids_output.stdout_lines}}"
         
     - name: append id to excluded ids
       when: elk_container_id is defined 
+      with_items: "{{elk_container_ids}}"
       lineinfile:
         dest: /etc/docker/images-exclude
-        line: "{{elk_container_id}}"
+        line: "{{item}}"
         state: present
 
     - name: fetch docker images ids to localhost
@@ -28,7 +40,7 @@
 
  
  # disable old ELK consul checks
-- name: "disable marathon.health consul checks"
+- name: "disable old consul checks"
   hosts: role=control
   become: true
   vars:

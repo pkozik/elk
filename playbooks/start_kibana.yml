@@ -1,0 +1,23 @@
+---
+
+
+- name: cleanup old containers
+  docker_container:
+    name: "kibana"
+    state: absent
+
+
+    
+- name: "Start kibana container"
+  docker_container:
+    name: "kibana"
+    image: csf/elk_k:5.4
+    state: started
+    pull: false
+    ports:
+      - "{{kibana_port}}:5601"
+
+    env:
+        ELASTICSEARCH_URL: "http://elasticsearch-client-mantl.service.consul:9200"
+        SERVER_BASEPATH: "/kibana"
+ 

@@ -1,0 +1,17 @@
+{
+    "service": {
+        "name": "kibana-mantl",
+        "tags": ["kibana", "client", "logs"],
+        "port": 31100,
+        "checks": [
+            {
+                "name": "kibana-mantl_health",
+                "http": "http://localhost:31100",
+                "method": "GET",
+                "interval": "10s",
+                "timeout": "5s"
+            }
+        ]
+    }
+}
+

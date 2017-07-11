@@ -2,9 +2,10 @@
   become: true
   hosts: role=worker
   vars:
-    master_nodes: "{{groups['role=worker'][0:3]}}"
-    data_nodes: "{{groups['role=worker'][3:]}}"
-    client_nodes: "{{groups['role=worker'][0:2]}}"
+    master_nodes: "{{play_hosts[0:3]}}"
+    data_nodes: "{{play_hosts[3:]}}"
+    client_nodes: "{{play_hosts[0:2]}}"
+    kibana_node: "{{play_hosts[-1]}}"
     data_path: /var/lib/mesos/elk
     discovery_hosts: "{{master_nodes | join(',')}}"
     transport_port: "9300"
@@ -59,3 +60,24 @@
         config:
           - {src: "../files/es_client_consul.json", dest: "es_client-consul.json"}
       tags: ["client"]
+
+      
+    # start Kibana
+    - name: Start Kibana container
+      when: inventory_hostname == kibana_node
+      include: start_kibana.yml
+      static: no
+      vars:
+        kibana_port: "31100"
+      tags: ["kibana"]
+      
+    - name: Consul checks install
+      include: "{{plat_folder}}/mantl/playbooks/install-consul-checks.yml"
+      when: inventory_hostname == kibana_node
+      static: no
+      vars:
+        config:
+          - {src: "../files/kibana_consul.json", dest: "kibana-consul.json"}
+      tags: ["kibana"]
+  
+  
