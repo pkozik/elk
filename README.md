@@ -1,9 +1,8 @@
 # elk sandbox
 
 
-
 On IA:
-===============
+------
 [root@pkozik-dev-lab external_images]# pwd
 /software_repository/external_images
 
@@ -13,19 +12,20 @@ On IA:
 
 
 On Admin
-===============
+------
 
 [admin@ee3bb9c5ec86 ~]$ registry add csf/elk_e:5.4
+[admin@ee3bb9c5ec86 ~]$ registry add csf/elk_k:5.4
 
 
 Odinstalowac EK, L zostaje
-==============================
+------
 ansible-playbook -e @security.yml --tags=elasticsearch -e 'elasticsearch_uninstall=true' addons/elk.yml
 ansible-playbook -e @security.yml -e 'kibana_uninstall=true' addons/kibana.yml
 
 
 Install new ELK
-===============
+------
 
 cd /opt/rapport/plat/mantl
 curl -O $LOCALHOST_IP/external_images/elk.5.4.tgz
@@ -36,5 +36,5 @@ ansible-playbook -e @security.yml elk.5.4/playbooks/install.yml
 
 
 Verify
-===========
+------
 [admin@ee3bb9c5ec86 mantl]$ plat-manager services checks --id service:elasticsearch*
