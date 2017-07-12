@@ -9,41 +9,33 @@
         },
         "application": {
           "type": "keyword",
-          "index": "not_analyzed"
         },
         "type": {
           "type": "keyword",
-          "index": "not_analyzed"
         },
         "program": {
           "type": "keyword"
         },
         "host": {
           "type": "keyword",
-          "index": "not_analyzed"
         },
         "loglevel": {
           "type": "keyword",
-          "index": "not_analyzed"
         },
         "logger": {
           "type": "keyword",
-          "index": "not_analyzed"
         },
         "operation": {
           "type": "keyword",
-          "index": "not_analyzed"
         },
         "priority": {
           "type": "keyword"
         },
         "tid": {
           "type": "keyword",
-          "index": "not_analyzed"
         },
         "user": {
           "type": "keyword",
-          "index": "not_analyzed"
         },
         "http_method": {
           "type": "keyword"

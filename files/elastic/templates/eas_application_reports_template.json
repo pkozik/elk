@@ -9,18 +9,18 @@
         },
         "application": {
           "type": "keyword",
-          "index": "not_analyzed"
+          "index": "true"
         },
         "type": {
           "type": "keyword",
-          "index": "not_analyzed"
+          "index": "true"
         },
         "program": {
           "type": "keyword"
         },
         "host": {
           "type": "keyword",
-          "index": "not_analyzed"
+          "index": "true"
         },
         "log4j_priority": {
           "type": "keyword"
@@ -30,35 +30,35 @@
         },
         "thread": {
           "type": "keyword",
-          "index": "not_analyzed"
+          "index": "false"
         },
         "user": {
           "type": "keyword",
-          "index": "not_analyzed"
+          "index": "true"
         },
         "userid": {
           "type": "keyword",
-          "index": "not_analyzed"
+          "index": "true"
         },
         "chatthreadid": {
           "type": "keyword",
-          "index": "not_analyzed"
+          "index": "true"
         },
         "conferenceId": {
           "type": "keyword",
-          "index": "not_analyzed"
+          "index": "true"
         },
         "EAS_ALARM": {
           "type": "keyword",
-          "index": "not_analyzed"
+          "index": "true"
         },
         "EAS_EVENT": {
           "type": "keyword",
-          "index": "not_analyzed"
+          "index": "true"
         },
         "EAS_INFO": {
           "type": "keyword",
-          "index": "not_analyzed"
+          "index": "true"
         }
       }
     }
