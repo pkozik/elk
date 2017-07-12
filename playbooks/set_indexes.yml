@@ -1,0 +1,24 @@
+
+- name: Setup Elasticsearch indexes
+  hosts: role=control
+  run_once: true
+  become: true
+  vars:
+    elasticsearch: "http://elasticsearch-client-mantl.service.consul:9200"
+  tasks:
+    - name: Create index templates
+      uri:
+        url: '{{elasticsearch}}/_template/{{item|basename|splitext|first}}'
+        method: PUT
+        body: '{{lookup("file", item)}}'
+        HEADER_Content-Type: application/json
+        body_format: json
+        status_code: 200,201
+      with_fileglob:
+        - ../files/elastic/templates/*.json
+      retries: 3
+      delay: 1
+      tags:
+        - indexes
+
+ 

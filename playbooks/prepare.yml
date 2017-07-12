@@ -2,8 +2,6 @@
 - name: Retrieve the docker images-exclude file
   hosts: role=control[0]
   become: true
-  vars:
-    elk_container: "csf/elk_e:5.4"
   tasks:
     - name: get container ids
       shell: "docker images -q {{item}} >> /tmp/images-ids"

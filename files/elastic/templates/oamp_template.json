@@ -1,0 +1,66 @@
+{
+  "template": "oamp-*",
+  "mappings": {
+    "log": {
+      "properties": {
+        "@timestamp": {
+          "type":"date",
+          "format": "strict_date_optional_time||epoch_millis"
+        },
+        "application": {
+          "type": "keyword",
+          "index": "not_analyzed"
+        },
+        "type": {
+          "type": "keyword",
+          "index": "not_analyzed"
+        },
+        "program": {
+          "type": "keyword"
+        },
+        "host": {
+          "type": "keyword",
+          "index": "not_analyzed"
+        },
+        "loglevel": {
+          "type": "keyword",
+          "index": "not_analyzed"
+        },
+        "logger": {
+          "type": "keyword",
+          "index": "not_analyzed"
+        },
+        "operation": {
+          "type": "keyword",
+          "index": "not_analyzed"
+        },
+        "priority": {
+          "type": "keyword"
+        },
+        "tid": {
+          "type": "keyword",
+          "index": "not_analyzed"
+        },
+        "user": {
+          "type": "keyword",
+          "index": "not_analyzed"
+        },
+        "http_method": {
+          "type": "keyword"
+        },
+        "status_code": {
+          "type": "integer",
+          "ignore_malformed": true
+        },
+        "return_code": {
+          "type": "integer",
+          "ignore_malformed": true
+        },
+        "elapsed_ms": {
+          "type": "long",
+          "ignore_malformed": true
+        }
+      }
+    }
+  }
+}

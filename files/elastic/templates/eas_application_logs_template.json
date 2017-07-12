@@ -1,0 +1,66 @@
+{
+  "template": "eas_application_logs-*",
+  "mappings": {
+    "log": {
+      "properties": {
+        "@timestamp": {
+          "type":"date",
+          "format": "strict_date_optional_time||epoch_millis"
+        },
+        "application": {
+          "type": "keyword",
+          "index": "not_analyzed"
+        },
+        "type": {
+          "type": "keyword",
+          "index": "not_analyzed"
+        },
+        "program": {
+          "type": "keyword"
+        },
+        "host": {
+          "type": "keyword",
+          "index": "not_analyzed"
+        },
+        "log4j_priority": {
+          "type": "keyword"
+        },
+        "priority": {
+          "type": "keyword"
+        },
+        "thread": {
+          "type": "keyword",
+          "index": "not_analyzed"
+        },
+        "user": {
+          "type": "keyword",
+          "index": "not_analyzed"
+        },
+        "userid": {
+          "type": "keyword",
+          "index": "not_analyzed"
+        },
+        "chatthreadid": {
+          "type": "keyword",
+          "index": "not_analyzed"
+        },
+        "conferenceId": {
+          "type": "keyword",
+          "index": "not_analyzed"
+        },
+        "EAS_ALARM": {
+          "type": "keyword",
+          "index": "not_analyzed"
+        },
+        "EAS_EVENT": {
+          "type": "keyword",
+          "index": "not_analyzed"
+        },
+        "EAS_INFO": {
+          "type": "keyword",
+          "index": "not_analyzed"
+        }
+      }
+    }
+  }
+}
