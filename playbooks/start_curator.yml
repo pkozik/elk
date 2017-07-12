@@ -1,0 +1,19 @@
+---
+
+- name: cleanup old containers
+  docker_container:
+    name: "curator"
+    state: absent
+
+    
+- name: "Start curator container"
+  docker_container:
+    name: "curator"
+    image: es-curator:17.07
+    state: started
+    pull: false
+    
+    volumes:
+     - "/curator:/curator"
+
+    command: "/curator/run.sh"

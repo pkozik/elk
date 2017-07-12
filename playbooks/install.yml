@@ -81,3 +81,16 @@
       tags: ["kibana"]
   
   
+    # start Curator
+    - name: Start Curator container
+      when: inventory_hostname == kibana_node
+      include: start_curator.yml
+      static: no
+      tags: ["curator"]
+      
+    - name: copy curator config file
+      sudo: yes
+      copy: src=../files/delete_data.yml dest=/curator
+      tags: ["curator"]
+      
+      
