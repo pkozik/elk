@@ -42,7 +42,7 @@
   hosts: role=control
   become: true
   vars:
-     plat_folder: "{{lookup('env', 'PLAT_BASE')}}"
+    plat_folder: "{{lookup('env', 'PLAT_BASE')}}"
 
   tasks:
     - name: Consul checks install
@@ -52,25 +52,26 @@
         config:
           - {src: "../files/marathon_consul.json", dest: "marathon.json"}
 
+    
+        
 
 - name: prepare hosts for Elasticsearch containers
   hosts: role=worker
   become: true
   vars:
-    data_path: /var/lib/mesos/elk
-    es_data: "{{data_path}}/data"
-    es_log: "{{data_path}}/log"
     ia_ip: "{{lookup('env', 'LOCALHOST_IP')}}"
-    software_repository: "{{lookup('env', 'SOFTWARE_REPOSITORY')}}"
     remove_containers: true
+    remove_data: false
  
   tasks:
+    - include_vars: elasticsearch_defaults.yml
+   
     - name: "Install ansible modules: docker-py"
       pip:
         state: present
         name: "docker-py"
         version: "1.10.6"
-        extra_args: "--trusted-host {{ia_ip}} --no-index -f {{software_repository}}/external_images/py"
+        extra_args: "--trusted-host {{ia_ip}} --no-index -f {{SOFTWARE_REPOSITORY}}/external_images/py"
   
   
     - name: "System configuration: vm.swappiness" 
@@ -89,12 +90,27 @@
         sysctl_set: yes
         
  
+ 
     - name: "Copy the docker images-exclude file"
       copy:
         dest: "/etc/docker/images-exclude"
         src: "/tmp/images-exclude"
  
-  
+ 
+    - name: "remove elasticsearch-cliet and kibana checks"
+      become: true
+      file:
+        path: "{{item}}"
+        state: absent
+      with_items:
+        - "/etc/consul/es_client-consul.json"
+        - "/etc/consul/kibana-consul.json"
+
+        
+    - name: "reload consul"
+      become: true
+      shell: "consul reload"
+        
     - name: cleanup old containers
       when: remove_containers == true
       docker_container:
@@ -104,5 +120,25 @@
         - es_master
         - es_data
         - es_client
+        - kibana
+        - curator
 
+    - name: stop all running elasticsearch deemons
+      when: remove_containers
+      become: true
+      ignore_errors: yes
+      shell: |
+        if [[ -f {{ES_HOME}}/pid.file ]]; then
+            kill -15 $(< {{ES_HOME}}/pid.file )
+        fi
+        
+    - name: remove all data
+      when: remove_data
+      become: true
+      file:
+        path: "{{item}}"
+        state: absent
+      with_items:
+        - "{{data_path}}"
+        - "/var/lib/mesos/elk"
  

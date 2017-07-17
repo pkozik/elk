@@ -2,40 +2,42 @@
   become: true
   hosts: role=worker
   vars:
-    master_nodes: "{{play_hosts[0:3]}}"
-    data_nodes: "{{play_hosts[3:]}}"
-    client_nodes: "{{play_hosts[0:2]}}"
+    master_nodes: "{{play_hosts[0:2]}}"
+    data_nodes: "{{play_hosts[2:]}}"
+    client_nodes: "{{play_hosts[2:]}}"
     kibana_node: "{{play_hosts[-1]}}"
-    data_path: /var/lib/mesos/elk
     discovery_hosts: "{{master_nodes | join(',')}}"
-    transport_port: "9300"
     plat_folder: "{{lookup('env', 'PLAT_BASE')}}"
-
+    deployment_type: "docker"
+    start_elastic_yml: "start_master_{{deployment_type}}.yml"
+    force_install: false
 
   tasks:
+    - include_vars: elasticsearch_defaults.yml
+   
     # Start MASTER
     - name: Start master node container
       when: inventory_hostname in master_nodes
-      include: start_master.yml
+      include: "{{start_elastic_yml}}"
       static: no
       vars:
         container_name: "es_master"
-        data_vol: "{{data_path}}/{{container_name}}"
-        is_master: "true"
-        is_data: "true"
+        es_data_vol: "{{data_path}}/{{container_name}}"
+        NODE_MASTER: "true"
+        NODE_DATA: "false"
       tags: ["master"]
         
         
     # Start DATA only
     - name: Start data node container
       when: inventory_hostname in data_nodes
-      include: start_master.yml
+      include: "{{start_elastic_yml}}"
       static: no
       vars:
         container_name: "es_data"
-        data_vol: "{{data_path}}/{{container_name}}"
-        is_master: "false"
-        is_data: "true"
+        es_data_vol: "{{data_path}}/{{container_name}}"
+        NODE_MASTER: "false"
+        NODE_DATA: "true"
       tags: ["data"]
      
 
@@ -46,8 +48,7 @@
       static: no
       vars:
         container_name: "es_client"
-        data_vol: "{{data_path}}/{{container_name}}"
-        transport_port: "9500"
+        es_data_vol: "{{data_path}}/{{container_name}}"
         discovery_hosts: "{{master_nodes|map('regex_replace', '^(.*)$', '\\1:9300' ) | join(',')}}"
       tags: ["client"]
         

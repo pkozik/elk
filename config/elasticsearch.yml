@@ -1,24 +1,35 @@
 cluster:
-  name: ${CLUSTER_NAME}
+  name: {{CLUSTER_NAME}}
 node:
-  master: ${NODE_MASTER}
-  data: ${NODE_DATA}
-  name: ${NODE_NAME}
-  ingest: ${NODE_INGEST}
-  max_local_storage_nodes: ${MAX_LOCAL_STORAGE_NODES}
-network.host: ${NETWORK_HOST}
+  master: {{NODE_MASTER | default("true")}}
+  data: {{NODE_DATA | default("true")}}
+  name: "{{NODE_NAME}}"
+  ingest: true
+  max_local_storage_nodes: 1
+
+network:
+  host: _site_
+  publish_host: "{{inventory_hostname}}"
+  
+transport.tcp.port: 9300
+
 path:
-  data: /data/data
-  logs: /data/log
-#bootstrap:
-#  memory_lock: true
+  data: "{{es_data_vol}}/data"
+  logs: "{{es_data_vol}}/log"
+  
+bootstrap:
+  memory_lock: true
+  
 http:
-  enabled: ${HTTP_ENABLE}
+  enabled: {{ HTTP_ENABLE | default("false") }}
   compression: true
   cors:
-    enabled: ${HTTP_CORS_ENABLE}
-    allow-origin: ${HTTP_CORS_ALLOW_ORIGIN}
+    enabled: true
+    allow-origin: "*"
+
 discovery:
   zen:
-    ping.unicast.hosts: ${DISCOVERY_SERVICE}
-    minimum_master_nodes: ${NUMBER_OF_MASTERS}
+    ping.unicast.hosts: "{{discovery_hosts}}"
+    minimum_master_nodes: {{NUMBER_OF_MASTERS | default(1)}}
+
+xpack.security.enabled: false

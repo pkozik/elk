@@ -1,0 +1,58 @@
+
+- include_vars: elasticsearch_defaults.yml
+
+# Installation of Elasticsearch package if needed
+- name: check elasticsearch is installed
+  stat:
+    path: "{{ES_HOME}}/bin/elasticsearch"
+  register: elasticsearch_installed
+  
+- name: install Elasticsearch if not present
+  include: install_elasticsearch_package.yml
+  vars:
+    elasticsearch_version: "5.3.3"
+  when: not elasticsearch_installed.stat.exists or force_install
+
+- name: Stop elastic if already running
+  shell: |
+    if [[ -f {{ES_HOME}}/pid.file ]]; then
+        kill -15 $(< {{ES_HOME}}/pid.file )
+    fi    
+
+  
+# Elasticsearch configuration files  
+- name: generate elasticsearch.yml config file
+  template:
+    src: "../config/elasticsearch.yml"
+    dest: "{{ES_HOME}}/config"
+  vars:
+    NODE_NAME: "{{inventory_hostname}}.{{container_name}}"
+    NODE_MASTER: "{{NODE_MASTER|default(true)}}"
+    NODE_DATA: "{{NODE_DATA|default(true)}}"
+
+    
+    
+# initialize Elasticsearch data volume    
+- name: Initialize data directory
+  become: true
+  file:
+    path: "{{item}}"
+    state: directory
+    owner: elasticsearch
+    mode: 0755
+  with_items:
+    - "{{es_data_vol}}/data"
+    - "{{es_data_vol}}/log"
+
+    
+
+# run the Elasticsearch as daemon
+- name: Start Elasticsearch
+  become: true
+  become_user: elasticsearch
+  shell: "./bin/elasticsearch -d -p ./pid.file"
+  args:
+    chdir: "{{ES_HOME}}"
+  environment:
+    ES_JAVA_OPTS: "-Xms4g -Xmx4g"
+  

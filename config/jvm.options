@@ -18,8 +18,9 @@
 # Xmx represents the maximum size of total heap space
 # Commented out since these are supplied as env vars in the command-line
 # for the service.
-#-Xms2g
-#-Xmx2g
+-Xms{{ JVM_HEAP_SIZE | default("4g") }}
+-Xmx{{ JVM_HEAP_SIZE | default("4g") }}
+
 ################################################################
 ## Expert settings
 ################################################################

@@ -1,0 +1,15 @@
+SOFTWARE_REPOSITORY: "{{lookup('env', 'SOFTWARE_REPOSITORY')}}"
+ES_HOME: "/usr/share/elasticsearch"
+
+ELASTICSEARCH_VERSION: "5.3.2"
+ES_PACKAGE_NAME: "elasticsearch-{{ELASTICSEARCH_VERSION}}"
+ES_PACKAGE_TAR: "{{ES_PACKAGE_NAME}}.tar.gz"
+ES_PLUGINS_DIR: "{{ES_HOME}}/install/plugins"
+CLUSTER_NAME: mantl
+NUMBER_OF_SHARDS: "1"
+NUMBER_OF_REPLICAS: "1"
+NUMBER_OF_MASTERS: "1"
+data_path: /var/lib/mesos/elastic
+
+
+

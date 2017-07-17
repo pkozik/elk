@@ -14,8 +14,8 @@
     state: directory
     mode: 0777
   with_items:
-    - "{{data_vol}}/data"
-    - "{{data_vol}}/log"
+    - "{{es_data_vol}}/data"
+    - "{{es_data_vol}}/log"
 
 
     
@@ -26,29 +26,30 @@
     state: started
     pull: false
     volumes:
-    - "{{data_vol}}:/data"
+    - "{{es_data_vol}}:/data"
     ports:
     - "9300:9300"
     capabilities:
     - IPC_LOCK
-    memory: 4g
-    memory_swap: 4g
+    memory: 8g
+    memory_swap: 8g
     memory_swappiness: 0
     ulimits:
      - nofile:65536:65536
      - memlock:-1:-1
      - nproc:2048:2048
     env:
-      NODE_NAME: "{{inventory_hostname}}"
-      CLUSTER_NAME: mantl
-      NODE_MASTER: "{{is_master|default(true)}}"
-      NODE_DATA: "{{is_data|default(true)}}"
+      NODE_NAME: "{{inventory_hostname}}.{{container_name}}"
+      CLUSTER_NAME: "{{CLUSTER_NAME}}"
+      NODE_MASTER: "{{NODE_MASTER}}"
+      NODE_DATA: "{{NODE_DATA}}"
+      NODE_INGEST: "true"
       NETWORK_HOST: "_site_"
       HTTP_ENABLE: "false"
-      ES_JAVA_OPTS: "-Xms2g -Xmx2g"
+      ES_JAVA_OPTS: "-Xms4g -Xmx4g"
       NUMBER_OF_SHARDS: "1"
       NUMBER_OF_REPLICAS: "1"
-      NUMBER_OF_MASTERS: "2"
+      NUMBER_OF_MASTERS: "1"
       DISCOVERY_SERVICE: "{{discovery_hosts}}"
       xpack.security.enabled: "false"
       network.publish_host: "{{inventory_hostname}}"

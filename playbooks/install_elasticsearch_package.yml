@@ -1,0 +1,66 @@
+
+      - name: add elasticsearch group
+        become: true
+        group:
+          name: elasticsearch
+          state: present
+          gid: "2000"
+      
+      - name: add elasticsearch user
+        become: true
+        user:
+          name: elasticsearch
+          uid: "2000"
+          group: elasticsearch
+          home: "{{ES_HOME}}"
+          state: present
+          
+      - name: Clean the home dir
+        become: true
+        become_user: elasticsearch
+        shell: "rm -rf {{ES_HOME}}/*"
+         
+ 
+      - name: Download elasticsearch package to localhost
+        become: true
+        become_user: elasticsearch
+        get_url:
+          url: "{{SOFTWARE_REPOSITORY}}/external_images/{{ES_PACKAGE_TAR}}"
+          dest: "{{ES_HOME}}/{{ES_PACKAGE_TAR}}"
+
+      - name: Extract elasticsearch package on remote host
+        become: true
+        become_user: elasticsearch
+        shell: |
+            cd {{ES_HOME}}
+            tar zxvf {{ES_PACKAGE_TAR}} &&
+            mv {{ES_PACKAGE_NAME}}/* . && 
+            rmdir {{ES_PACKAGE_NAME}} &&
+            rm -f {{ES_PACKAGE_TAR}}       
+      
+      - name: Install elasticsearch plugins
+        become: true
+        become_user: elasticsearch
+        shell: |
+            cd {{ES_HOME}}
+            for plugin in $(ls -1 {{ES_PLUGINS_DIR}}/*); do 
+                ./bin/elasticsearch-plugin install --silent --batch file://${plugin}
+            done
+
+      - name: update OS limits
+        become: true
+        copy:
+          src: "../files/30-elasticsearch.conf"
+          dest: "/etc/security/limits.d"
+        tags:
+          - limits
+
+      - name: reload limit settings
+        become: true
+        shell: "sysctl -p"
+        tags:
+          - limits
+          
+          
+          
+          

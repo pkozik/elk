@@ -32,7 +32,8 @@ if [[ $type == "master" ]]; then
 		-e "NUMBER_OF_SHARDS=1" \
 		-e "NUMBER_OF_REPLICAS=1" \
 		-e "NUMBER_OF_MASTERS=1" \
-		-e "DISCOVERY_SERVICE=mantl-worker-001,mantl-worker-002,mantl-worker-003" \
+		-e "DISCOVERY_SERVICE=mantl-worker-001,mantl-worker-002,mantl-worker-004" \
+		-e "xpack.security.enabled=false" \
 		-p 9300:9300 \
 		--cap-add=IPC_LOCK \
 		--memory=4g \
