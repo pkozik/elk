@@ -15,7 +15,7 @@ On Admin
 [admin@ee3bb9c5ec86 ~]$ registry add csf/elk_e:5.4
 
 
-Odinstalowac EK, L zostaje
+Uninstall 2.4 Elastic. Only EK, L stay as it is.
 ==============================
 ansible-playbook -e @security.yml --tags=elasticsearch -e 'elasticsearch_uninstall=true' addons/elk.yml
 ansible-playbook -e @security.yml -e 'kibana_uninstall=true' addons/kibana.yml
@@ -29,10 +29,11 @@ curl -O $LOCALHOST_IP/external_images/elk.5.4.tgz
 tar zxvf elk.5.4.tgz
 
 ansible-playbook -e @security.yml elk.5.4/playbooks/prepare.yml
-ansible-playbook -e @security.yml elk.5.4/playbooks/install.yml
-
+a) deploy using docker containers:    ansible-playbook -e @security.yml elk.5.4/playbooks/install.yml
+b) deploy as java native processes:   ansible-playbook -e @security.yml -e 'deployment_type=true' elk.5.4/playbooks/install.yml
+  
 
 Verify
 ===========
-[admin@ee3bb9c5ec86 mantl]$ plat-manager services checks --id service:elasticsearch*
+[admin@ee3bb9c5ec86 mantl]$ plat-manager services checks --id elasticsearch*
 
