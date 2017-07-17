@@ -30,7 +30,7 @@ tar zxvf elk.5.4.tgz
 
 ansible-playbook -e @security.yml elk.5.4/playbooks/prepare.yml
 a) deploy using docker containers:    ansible-playbook -e @security.yml elk.5.4/playbooks/install.yml
-b) deploy as java native processes:   ansible-playbook -e @security.yml -e 'deployment_type=true' elk.5.4/playbooks/install.yml
+b) deploy as java native processes:   ansible-playbook -e @security.yml -e 'deployment_type=java' elk.5.4/playbooks/install.yml
   
 
 Verify
